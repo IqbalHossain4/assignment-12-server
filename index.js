@@ -290,18 +290,13 @@ app.get('/allpayment',async(req,res)=>{
   res.send(result)
 })
 
-
     app.post("/payments", verifyJWT, async (req, res) => {
       const payment = req.body;
       const result = await paymentCollection.insertOne(payment);
-      const query = {
-        _id: { $in: payment.cartItem.map((id) => new ObjectId(id)) },
-      };
-      const deleteRsult = await topClass.deleteMany(query);
-      res.send(result,deleteRsult);
+      res.send(result);
     });
     // Send a ping to confirm a successful connection
-//     await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
