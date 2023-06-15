@@ -30,7 +30,7 @@ const verifyJWT = (req, res, next) => {
   });
 };
 
-const uri = `mongodb+srv://lastassignment:KlOEYPzFwMsXvoBu@cluster0.axpgb1h.mongodb.net/?retryWrites=true&w=majority`;
+const uri =process.env.URI
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
