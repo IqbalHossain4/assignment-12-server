@@ -9,6 +9,7 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+
 const verifyJWT = (req, res, next) => {
   const authorization = req.headers.authorization;
   if (!authorization) {
@@ -92,7 +93,7 @@ async function run() {
       "/users",
       verifyJWT,
       verifyAdmin,
-      // verifyInstructor,
+      verifyInstructor,
       async (req, res) => {
         const result = await users.find().toArray();
         res.send(result);
@@ -112,6 +113,22 @@ async function run() {
       res.send(result);
     });
 
+    
+    //admin
+    app.get("/users/admin/:email", verifyJWT, async (req, res) => {
+      const email = req.params.email;
+      // verify email
+      console.log(email,req.decoded.email);
+      if (req.decoded.email !== email) {
+        res.send({ admin: false });
+      }
+      const query = { email: email };
+      const user = await users.findOne(query);
+      console.log(user);
+      const result = { admin: user?.role === "admin" };
+      res.send(result);
+    });
+
     //instructor
     app.get("/users/instructor/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
@@ -119,24 +136,42 @@ async function run() {
       if (req.decoded.email !== email) {
         res.send({ instructor: false });
       }
+      
       const query = { email: email };
       const user = await users.findOne(query);
       const result = { instructor: user?.role === "instructor" };
       res.send(result);
     });
 
-    //admin
-    app.get("/users/admin/:email", verifyJWT, async (req, res) => {
-      const email = req.params.email;
-      // verify email
-      if (req.decoded.email !== email) {
-        res.send({ admin: false });
-      }
-      const query = { email: email };
-      const user = await users.findOne(query);
-      const result = { admin: user?.role === "admin" };
-      res.send(result);
-    });
+
+      //post user
+      app.post("/users", async (req, res) => {
+        const user = req.body;
+        const query = { email: user.email };
+        const existingUser = await users.findOne(query);
+        if (existingUser) {
+          return res.send({ message: "already exist" });
+        }
+        const result = await users.insertOne(user);
+        res.send(result);
+      });
+
+      app.patch("/users/:id", async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        console.log(await users.findOne(query));
+        const updateUser = req.body;
+        const updateDocs = {
+          $set: {
+            role: updateUser.role,
+          },
+        };
+        console.log(updateUser);
+        const result = await users.updateOne(query, updateDocs);
+        console.log(result);
+        res.send(result);
+      });
+  
 
     app.get("/alluser", async (req, res) => {
       const result = await users.find().toArray();
@@ -149,30 +184,7 @@ async function run() {
       res.send(result);
     });
 
-    //post user
-    app.post("/users", async (req, res) => {
-      const user = req.body;
-      const query = { email: user.email };
-      const existingUser = await users.findOne(query);
-      if (existingUser) {
-        return res.send({ message: "already exist" });
-      }
-      const result = await users.insertOne(user);
-      res.send(result);
-    });
-    app.patch("/users/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) };
-      const updateUser = req.body;
-      const updateDocs = {
-        $set: {
-          role: updateUser.role,
-        },
-      };
-      const result = await users.updateOne(query, updateDocs);
-      res.send(result);
-    });
-
+  
     //class
     app.get("/topclass", async (req, res) => {
       const result = await topClass
@@ -278,6 +290,8 @@ async function run() {
         clientSecret: paymentIntent.client_secret,
       });
     });
+
+    
     //payments post
 
 app.get('/allpayment',async(req,res)=>{
