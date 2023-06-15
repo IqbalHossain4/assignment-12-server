@@ -44,7 +44,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
     const users = client.db("sky").collection("user");
     const topClass = client.db("sky").collection("topClass");
     const instructor = client.db("sky").collection("instructor");
@@ -92,7 +92,7 @@ async function run() {
       "/users",
       verifyJWT,
       verifyAdmin,
-      verifyInstructor,
+      // verifyInstructor,
       async (req, res) => {
         const result = await users.find().toArray();
         res.send(result);
@@ -264,6 +264,7 @@ async function run() {
       const result = await selectedClass.deleteOne(query);
       res.send(result);
     });
+
     //payment
     app.post("/create-payment", verifyJWT, async (req, res) => {
       const { price } = req.body;
