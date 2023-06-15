@@ -269,6 +269,13 @@ async function run() {
       const result = await selectedClass.find(query).toArray();
       res.send(result);
     });
+    app.get("/selectCourse/:id", async (req, res) => {
+      const id = req.params.id;
+  
+      const query = { _id:new ObjectId(id)};
+      const result = await selectedClass.findOne(query)
+      res.send(result);
+    });
 
     app.delete("/selectCourse/:id", async (req, res) => {
       const id = req.params.id;
@@ -291,7 +298,7 @@ async function run() {
       });
     });
 
-    
+
     //payments post
 
 app.get('/allpayment',async(req,res)=>{
@@ -310,6 +317,7 @@ app.get('/allpayment',async(req,res)=>{
       const result = await paymentCollection.insertOne(payment);
       res.send(result);
     });
+
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
     console.log(
