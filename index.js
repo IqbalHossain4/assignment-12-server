@@ -279,6 +279,18 @@ async function run() {
     });
     //payments post
 
+app.get('/allpayment',async(req,res)=>{
+  const email = req.query.email;
+      if (!email) {
+        res.send("email not found");
+      }
+  const query={email:email}
+
+  const result=await paymentCollection.find(query).toArray()
+  res.send(result)
+})
+
+
     app.post("/payments", verifyJWT, async (req, res) => {
       const payment = req.body;
       const result = await paymentCollection.insertOne(payment);
